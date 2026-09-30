@@ -6,6 +6,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import plotly.graph_objects as go
 
 
 # ============================================================
@@ -561,29 +562,149 @@ with tab3:
             f"### {heatmap_target} response — {target_scale} L"
         )
 
-        # Temporary heatmap placeholder.
-        # Real model-generated heatmap comes in Step 6E.
+                # ====================================================
+        # INTERACTIVE HEATMAP
+        # ====================================================
 
-        heatmap_data = pd.DataFrame(
-            np.random.uniform(
-                0,
-                1,
-                (8, 8)
+        # Temporary demo response surface
+        # This will later be replaced by actual Model-1
+        # predictions in Step 6E.
+
+        np.random.seed(42)
+
+        heatmap_values = np.random.uniform(
+            0,
+            1,
+            (8, 8)
+        )
+
+        # Create readable axis values
+        x_values = np.arange(1, 9)
+        y_values = np.arange(1, 9)
+
+        # ----------------------------------------------------
+        # CREATE HEATMAP
+        # ----------------------------------------------------
+
+        fig = go.Figure(
+            data=go.Heatmap(
+
+                z=heatmap_values,
+
+                x=x_values,
+
+                y=y_values,
+
+                colorscale=[
+                    [0.00, "red"],
+                    [0.35, "orange"],
+                    [0.50, "yellow"],
+                    [0.70, "lightgreen"],
+                    [1.00, "green"]
+                ],
+
+                zmin=0,
+                zmax=1,
+
+                colorbar=dict(
+                    title="Yield / Performance",
+                    tickvals=[0, 0.5, 1],
+                    ticktext=[
+                        "Low",
+                        "Moderate",
+                        "High"
+                    ]
+                ),
+
+                hovertemplate=(
+                    f"{heatmap_x}: %{{x}}<br>"
+                    f"{heatmap_y}: %{{y}}<br>"
+                    "Performance: %{z:.2f}"
+                    "<extra></extra>"
+                )
+            )
+        )
+
+        # ----------------------------------------------------
+        # AXIS LABELS
+        # ----------------------------------------------------
+
+        fig.update_layout(
+
+            title=dict(
+                text=(
+                    f"{heatmap_target} Response Surface — "
+                    f"{target_scale} L"
+                ),
+                x=0.5
             ),
-            index=np.arange(8),
-            columns=np.arange(8)
+
+            xaxis=dict(
+                title=heatmap_x,
+                showgrid=False
+            ),
+
+            yaxis=dict(
+                title=heatmap_y,
+                showgrid=False
+            ),
+
+            height=550,
+
+            margin=dict(
+                l=70,
+                r=50,
+                t=80,
+                b=70
+            )
         )
 
-        st.dataframe(
-          heatmap_data,
-          use_container_width=True
-      )
-    
+        # ----------------------------------------------------
+        # DISPLAY HEATMAP
+        # ----------------------------------------------------
+
+        st.plotly_chart(
+            fig,
+            use_container_width=True
+        )
+
+        # ----------------------------------------------------
+        # LEGEND
+        # ----------------------------------------------------
+
+        st.markdown(
+            """
+            <div style="
+                display:flex;
+                justify-content:center;
+                gap:35px;
+                margin-top:10px;
+                margin-bottom:10px;
+            ">
+
+                <div>
+                    🔴 <b>Low Yield</b>
+                </div>
+
+                <div>
+                    🟡 <b>Moderate Yield</b>
+                </div>
+
+                <div>
+                    🟢 <b>High Yield</b>
+                </div>
+
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
         st.caption(
-            "Prototype visualization — model-generated "
-            "response surface will replace this in Step 6E."
+            "Prototype response surface. In the final version, "
+            "colour intensity will represent model-predicted "
+            "biological performance across the selected operating "
+            "parameters."
         )
-
     else:
 
         st.info(
